@@ -609,7 +609,7 @@ GRUB EFI Bootloader Install & Check
 "
 
 if [[ -d "/sys/firmware/efi" ]]; then
-    grub-install --efi-directory=/boot ${DISK}
+    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ArchLinux --recheck
 fi
 
 echo -ne "
