@@ -415,7 +415,7 @@ if ! mountpoint -q /mnt; then
     exit 1
 fi
 mkdir -p /mnt/boot/efi
-mount -t vfat -U "${BOOT_UUID}" /mnt/boot/
+mount -t vfat -U "${BOOT_UUID}" /mnt/boot/efi
 
 if ! grep -qs '/mnt' /proc/mounts; then
     echo "Drive is not mounted can not continue"
@@ -609,7 +609,7 @@ GRUB EFI Bootloader Install & Check
 "
 
 if [[ -d "/sys/firmware/efi" ]]; then
-    grub-install --efi-directory=/boot ${DISK}
+    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ArchLinux --removable
 fi
 
 echo -ne "
