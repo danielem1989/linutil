@@ -95,9 +95,37 @@ echo -ne "
 "
 
     echo "Available disks:"
-    lsblk -n --output TYPE,KNAME,SIZE | awk '$1=="disk"{print "/dev/"$2" - "$3}'
+    # Create an array to store disk paths
+    declare -a disks
+    # Counter for disk numbering
+    counter=1
+    
+    # Read disks into array and display numbered list
+    while IFS= read -r line; do
+        disks+=("$line")
+        echo "$counter) $line"
+        ((counter++))
+    done < <(lsblk -n --output TYPE,KNAME,SIZE | awk '$1=="disk"{print "/dev/"$2" - "$3}')
+    
     echo ""
-    read -r -p "Please enter the disk to install on (e.g., /dev/sda): " disk
+    read -r -p "Please select the disk number to install on (e.g., 1): " disk_num
+    
+    # Validate input is a number
+    if ! [[ "$disk_num" =~ ^[0-9]+$ ]]; then
+        echo "Error: Please enter a valid number"
+        diskpart
+        return
+    fi
+    
+    # Check if the number is within valid range
+    if [ "$disk_num" -lt 1 ] || [ "$disk_num" -gt "${#disks[@]}" ]; then
+        echo "Error: Invalid selection. Please choose a number between 1 and ${#disks[@]}"
+        diskpart
+        return
+    fi
+    
+    # Get the selected disk path (array is 0-indexed, user input is 1-indexed)
+    disk=$(echo "${disks[$((disk_num-1))]}" | awk '{print $1}')
     
     if [ ! -b "$disk" ]; then
         echo "Error: $disk is not a valid block device"
